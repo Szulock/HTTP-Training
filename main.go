@@ -10,6 +10,8 @@ func main() {
 	http.HandleFunc("/", HelloHandler)
 	http.HandleFunc("/json", NewCoderjSON)
 	http.HandleFunc("/headerget", GetHeaders)
+	http.HandleFunc("/getallinfo", getinfo)
+
 	http.ListenAndServe(":8080", nil) // Запуск сервера
 }
 
@@ -34,3 +36,27 @@ func GetHeaders(w http.ResponseWriter, r *http.Request) {
 	// Кодируем заголовки в JSON и отправляем в ответ
 	json.NewEncoder(w).Encode(headersMap)
 }
+
+func getinfo(w http.ResponseWriter, r *http.Request) {
+	method := r.Method
+
+	url := r.URL.String()
+
+	headers := r.Header
+
+	// Формируем ответ в текстовом формате
+	response := fmt.Sprintf("Method: %s\nURL: %s\nHeaders:\n", method, url)
+	for key, values := range headers {
+		for _, value := range values {
+			response += fmt.Sprintf("%s: %s\n", key, value)
+		}
+	}
+
+	// Устанавливаем заголовок Content-Type как text/plain
+	w.Header().Set("Content-Type", "text/plain")
+
+	// Отправляем ответ
+	w.Write([]byte(response))
+}
+
+//Создайте HTTP-сервер, который отвечает "Hello, [name]!" на запросы к /hello?name=[name].
