@@ -11,7 +11,7 @@ func main() {
 	http.HandleFunc("/json", NewCoderjSON)
 	http.HandleFunc("/headerget", GetHeaders)
 	http.HandleFunc("/getallinfo", getinfo)
-
+	http.HandleFunc("/hello", name)
 	http.ListenAndServe(":8080", nil) // Запуск сервера
 }
 
@@ -59,4 +59,16 @@ func getinfo(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(response))
 }
 
-//Создайте HTTP-сервер, который отвечает "Hello, [name]!" на запросы к /hello?name=[name].
+// Создайте HTTP-сервер, который отвечает "Hello, [name]!" на запросы к /hello?name=[name].
+func name(w http.ResponseWriter, r *http.Request) {
+
+	// Получаем значение параметра "name" из URL запроса
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		name = "World" // Значение по умолчанию, если параметр "name" не указан
+	}
+	// Формируем ответ
+	response := fmt.Sprintf("Hello, %s!", name)
+	// Пишем ответ в ResponseWriter
+	w.Write([]byte(response))
+}
