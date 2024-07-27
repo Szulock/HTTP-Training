@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -12,6 +15,8 @@ func main() {
 	http.HandleFunc("/headerget", GetHeaders)
 	http.HandleFunc("/getallinfo", getinfo)
 	http.HandleFunc("/hello", name)
+	http.HandleFunc("/image", imageHandler)
+
 	http.ListenAndServe(":8080", nil) // Запуск сервера
 }
 
@@ -71,4 +76,25 @@ func name(w http.ResponseWriter, r *http.Request) {
 	response := fmt.Sprintf("Hello, %s!", name)
 	// Пишем ответ в ResponseWriter
 	w.Write([]byte(response))
+}
+
+func imageHandler(w http.ResponseWriter, r *http.Request) {
+	// Определяем путь к изображению
+	imagePath := filepath.Join("png-transparent-heart-pump-to-download-blood-red-donation-red-cross-life-donor-compress-thumbnail.png")
+
+	// Открываем файл изображения
+	file, err := os.Open(imagePath)
+	if err != nil {
+		http.Error(w, "Image not found.", http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	// Устанавливаем заголовок Content-Type
+	w.Header().Set("Content-Type", "image/png")
+
+	// Копируем содержимое файла в ResponseWriter
+	if _, err := io.Copy(w, file); err != nil {
+		http.Error(w, "Failed to serve image.", http.StatusInternalServerError)
+	}
 }
